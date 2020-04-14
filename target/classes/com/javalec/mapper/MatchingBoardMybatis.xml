@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="MatchingBoardNS">
+ 
+ 	<!-- __________________________________________________________________-->
+ 	<select id="list" resultMap="matchingBoard">	
+		<![CDATA[SELECT * 
+		FROM
+		(SELECT ROWNUM RN, a.* FROM 
+			(SELECT * FROM Matching_Board WHERE tier=#{tier} AND 
+			lane=#{lane} ORDER BY Matching_Board_Id DESC) a 
+			WHERE ROWNUM <=( #{page} *15)) 
+		WHERE  RN>=(( #{page} -1)*15+1)]]>
+	</select>
+	<select id="listNone" resultMap="matchingBoard">	
+		<![CDATA[SELECT * 
+		FROM
+		(SELECT ROWNUM RN, a.* FROM 
+			(SELECT * FROM Matching_Board WHERE tier=#{tier} 
+			 ORDER BY Matching_Board_Id DESC) a 
+			WHERE ROWNUM <=( #{page} *15)) 
+		WHERE  RN>=(( #{page} -1)*15+1)]]>
+	</select>	
+	<resultMap type="com.javalec.vo.MatchingBoardVO" id="matchingBoard">
+      <id property="matchingBoardId"   column="matching_board_id" />      
+      <result property="writeDate" column="write_Date" />
+      <association property="participants" column="matching_board_id" select="getCountOfReply" />
+    </resultMap>
+    <select id="getCountOfReply" resultType="integer">
+         SELECT COUNT(*) FROM matching_reply WHERE parent_id=#{matching_board_id}
+    </select>
+     <!-- __________________________________________________________________-->
+  
+  
+   <select id="getMatchingBoardById" resultMap="matchingBoard">
+   		SELECT * FROM matching_board WHERE matching_board_id=#{id} 
+   </select>   
+   <select id="maxReplyId" resultType="integer">
+      SELECT MAX(reply_id) FROM matching_reply
+   </select>
+   <!-- select maxId for insert -->
+	<select id="maxId" resultType="integer">
+		SELECT MAX(matching_board_id) FROM matching_Board
+	</select>	
+	<select id="count" resultType="integer" >
+		SELECT COUNT(matching_board_Id) FROM matching_Board WHERE tier=#{tier}
+	</select>
+	
+	<!-- __________________________________________________________________-->
+	<select id="getMatchingReplyById" resultMap="matchingReply">
+		SELECT nickname,reply.* 
+		FROM matching_reply reply,member 
+		WHERE parent_id=#{parentId} 
+		AND  reply.email = member.email 
+		ORDER BY reply_id
+	</select>
+	<resultMap type="com.javalec.vo.MatchingReplyVO" id="matchingReply">
+		<id property="replyId" 	column="reply_id"/>
+		<result property="parentId"	column="parent_id"/>
+		<result property="writeDate"		column="write_date"/>
+		<result property="nickname" column="nickanme"/>
+	</resultMap>
+	<!-- __________________________________________________________________-->
+	
+	<select id="getEmailByNickname" resultType="String">
+		SELECT email FROM member WHERE nickname=#{nickname}
+	</select>
+	
+	<insert id="insertBoard">
+		INSERT INTO 
+		matching_board
+		(MATCHING_BOARD_ID,EMAIL,WRITE_DATE, CONTENT, NICKNAME, READCOUNT, EXPIRED, TIER, LANE,title) 
+		VALUES 
+		(matching_seq.nextval,#{email},TO_CHAR(SYSDATE, 'YYYY/MM/DD HH:MI'),#{content},
+		#{nickname},0,#{expired},#{tier},#{lane},#{title})						
+	</insert>
+	
+	<insert id="insertReply">
+		INSERT INTO 
+		matching_reply
+		(reply_id,parent_id,email,content,tier,write_date,lane) 
+		VALUES(
+			matching_reply_seq.nextval,
+			#{parentId},
+			#{email},
+			#{content},
+			#{tier},			
+			TO_CHAR(SYSDATE, 'YYYY/MM/DD HH:MI'),
+			#{lane}
+		)
+	</insert>
+	
+	<insert id="insertLiveChatRoom">
+		INSERT INTO duo_chat_room
+		(chat_id,create_date,email_1,email_2,most_champ_1,most_champ_2,chat_expired,
+		lane1,lane2,confirm_exit)
+		values(
+			#{chatId},
+			sysdate,
+			#{email1},
+			#{email2},
+			#{mostChamp1},
+			#{mostChamp2},
+			#{chatExpired},
+			#{lane1},
+			#{lane2},
+			0
+		)
+			
+	</insert>
+	
+	
+   <update id="updateExpired">
+   		UPDATE matching_board SET expired = 0 
+   		WHERE matching_board_id=#{id}
+   </update>
+   
+   <update id="updateBoard">
+   		UPDATE matching_board SET content=#{content}, title=#{title} WHERE matching_board_id=#{boardId}
+   </update>
+   
+   
+   
+   <delete id="deleteBoard">
+   		DELETE FROM matching_board WHERE matching_board_id=#{boardId}
+   </delete>
+   
+   <!-- 검색기능  -->
+	<select id="searchNickname" resultMap="matchingBoard">
+      <![CDATA[SELECT * 
+      FROM
+      (SELECT ROWNUM RN, a.* FROM 
+         (SELECT * FROM Matching_Board 
+         WHERE nickname = #{nickname}
+          ORDER BY Matching_Board_Id DESC) a 
+         WHERE ROWNUM <=( #{page} *15)) 
+      WHERE  RN>=(( #{page} -1)*15+1)]]>
+   </select>
+   <select id="countByNickname" resultType="int">
+         SELECT count(*) FROM matching_board where nickname = #{param}
+   </select>
+	 	
+ </mapper>

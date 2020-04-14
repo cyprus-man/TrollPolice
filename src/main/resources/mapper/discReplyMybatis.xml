@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="#package.#mapperinterfacename">
+
+	<!-- getReply 할때  judge 테이블에서 조인해서 갖고와야됨  -->
+	<resultMap  type="com.javalec.vo.DiscussionReplyVO" id="discReply">
+		<id column="discboard_id" property="discBoardId"/>
+		<result column="email" property="email"/>
+		<result column="nickname" property="nickname"/>
+		<result column="write_date" property="writeDate"/>
+		<result column="content" property="content"/>
+		<result column="disc_reply_id" property="replyId"/>
+		<result column="disc_parent_id" property="parentId"/>
+	</resultMap>
+	<select id="getReplyCount" parameterType="int" resultType="integer">
+		SELECT COUNT(*) FROM discussion_reply WHERE discboard_id = #{discId} 
+		AND disc_parent_id = #{parentId}
+	</select>
+	<select id="getReplyByEmail" parameterType="string" resultMap="discReply">
+		SELECT * FROM discussion_reply WHERE email = #{email}
+	</select>
+	<select id="getReplyByDisc" parameterType="hashMap" resultMap="discReply">
+		SELECT * FROM discussion_reply WHERE discboard_id = #{discId} 
+		AND disc_parent_id = #{parentId}
+	</select>
+	<select id="getMax" parameterType="integer" resultType="integer">
+		SELECT MAX(disc_reply_id) 
+		FROM discussion_reply WHERE 
+		discboard_id = #{discBoardId}
+	</select>
+	<insert id="insertReply" parameterType="com.javalec.vo.DiscussionReplyVO">
+		INSERT INTO discussion_reply 
+		(email,nickname,write_date,content,discboard_id,disc_reply_id,disc_parent_id)
+		VALUES 
+		(#{email},#{nickname},#{writeDate},#{content},#{discBoardId},#{replyId},#{parentId})
+	</insert>
+	<update id="updateReplyContent" parameterType="com.javalec.vo.DiscussionReplyVO">
+		UPDATE discussion_reply 
+		SET content  = #{}
+		WHERE discboard_id = #{discBoardId} 
+		AND disc_reply_id  = #{replyId}
+	</update>
+	<delete id="deleteReply" parameterType="hashMap">
+		DELETE FROM discussion_reply WHERE
+		discboard_id  = #{discId} AND 
+		disc_reply_id = #{replyId}
+	</delete>
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.javalec.dao.ServiceCenterDao" >
+	
+	<insert id="serviceCenterInsert">
+		INSERT INTO SERVICE_BOARD
+		(TYPE, SERVICE_ID, EMAIL, TARGET_ID, WRITE_DATE, CONTENT )
+		VALUES (#{type},#{serviceId},#{email},#{targetId},#{writeDate},#{content} ) 
+	</insert>
+	<select id="getMaxId" resultType="integer"> 
+		SELECT MAX(service_id)+1 FROM SERVICE_BOARD
+	</select>
+	<select id="serviceCenterBoard" resultMap="serviceCenterBoard">
+		SELECT * FROM SERVICE_BOARD
+	</select>
+	<delete id="deleteService">
+		DELETE FROM service_board WHERE service_id = #{value}
+	</delete>
+	<resultMap id="serviceCenterBoard" type="com.javalec.vo.ServiceCenterVO">
+		<result property="type" column="type"/>
+		<result property="writeDate" column="write_date"/>
+		<result property="serviceId" column="service_id"/>
+		<result property="email" column="email"/>
+		<result property="targetId" column="target_id"/>
+		<result property="content" column="content"/>
+	</resultMap>
+</mapper>

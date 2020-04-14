@@ -1,0 +1,66 @@
+@charset "UTF-8";
+   *{
+    margin: 0;
+    padding: 0;
+    text-decoration:  none;  /*밑줄도 시작전에 다뺴고 시작함*/
+    }
+    footer{
+        background-color: #2fc97a;
+        min-width: 100%;
+        height: 100PX;
+        position: relative;
+         
+    }   
+    footer #about{
+        font-size:  13px;
+       color: #fff;
+       position: relative;
+       left: 470px;
+    }
+    footer #history{
+        font-size:  13px;
+       color: #fff;
+       position: relative;
+       left: 500px;
+    }
+    footer #privacy{
+        font-size:  13px;
+       color: #fff;
+       position: relative;
+       left: 530px;
+    }
+    footer #help{
+        font-size:  13px;
+       color: #fff;
+       position: relative;
+       left: 560px;
+    }
+    footer #alliance{
+        font-size:  13px;
+       color: #fff;
+       position: relative;
+       left: 590px;
+    }
+    footer #pid{
+        font-size:  13px;
+       color: #fff;
+       position: relative;
+       left: 620px;
+    }
+    footer #hire{
+        font-size:  13px;
+       color: #fff;
+       position: relative;
+       left: 650px;
+    }
+    footer a:hover{
+        text-decoration:underline; 
+        /* color:#fff; */
+    }
+    footer #foot{
+        width: 960px;
+        font-size:  12px;
+       color: #fff;
+       margin: auto;
+       margin-top: 20px;
+    }

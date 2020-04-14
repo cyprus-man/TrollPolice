@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MemberNS">
+	<resultMap id="member" type="com.javalec.vo.MemberVO">
+		<result column="ENCRYPEDID" property="encrypedID" />
+		<result column="EMAIL" property="email" />
+		<result column="PWD" property="pwd" />
+		<result column="NICKNAME" property="nickname" />
+		<result column="TIER" property="tier" />
+		<result column="ADMIN_" property="admin_" />
+		<result column="SUSPENSION_TYPE" property="suspensionType" />
+		<result column="SUSPENSION_EXPIRED"
+			property="suspensionExpired" />	
+		<result column="name_id" property="nameId"/>
+	</resultMap>
+	
+	<select id="getMemberByEmailPw"
+		resultMap="member" parameterType="hashMap">
+		SELECT * FROM
+		member WHERE email = #{email} and pwd = #{pwd}
+	</select>
+
+	<select id="getMemberByEmail"
+		resultMap="member" parameterType="string">
+		SELECT * FROM
+		member WHERE email = #{value}
+	</select>
+
+	<select id="getMemberByNickname"
+		resultMap="member" parameterType="string">
+		SELECT * FROM
+		member 
+		WHERE nickname = #{nickname} 
+		AND email != 'deleted'
+	</select>
+
+	<insert id="insertMember"
+		parameterType="com.javalec.vo.MemberVO">
+		INSERT INTO member
+		(encrypedid, email, pwd, nickname,
+		tier, validation,name_id)
+		VALUES
+		(#{encrypedID},#{email},#{pwd},#{nickname},#{tier},#{validation},#{nameId})
+	</insert>
+
+	<delete id="deleteMember"
+		parameterType="com.javalec.vo.MemberVO">
+		DELETE member WHERE email = #{email}
+	</delete>
+	<update id="updateMember"
+		parameterType="com.javalec.vo.MemberVO">
+		UPDATE member
+		SET
+		pwd = #{pwd},
+		validation = #{validation},
+		tier = #{tier},
+		nickname = #{nickname},
+		encrypedId = #{encrypedID},
+		suspension_type = #{suspensionType},
+		suspension_expired = #{suspensionExpired}
+		where
+		email = #{email}
+	</update>
+
+</mapper>

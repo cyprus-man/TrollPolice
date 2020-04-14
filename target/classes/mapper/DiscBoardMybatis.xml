@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DiscBoardNS">
+	<!-- select boardList -->
+	<select parameterType="integer" resultType="com.javalec.vo.DiscussionBoardVO" id="list">	
+	<![CDATA[SELECT * FROM 
+		(SELECT ROWNUM RN, a.* FROM 
+			(SELECT * FROM discussion_Board ORDER BY discBoard_Id DESC) a WHERE ROWNUM <=(#{page}*15)) 
+			 WHERE  RN>=((#{page}-1)*15+1)]]>
+	</select>
+	
+	<!-- select list for sqlite -->
+	<select id="listForSQLite" parameterType="integer" resultMap = "discBoard">
+		SELECT * FROM discussion_board  ORDER BY write_date DESC LIMIT 15 OFFSET (#{page}-1)*15
+	</select>
+	
+	<!-- select maxId for insert -->
+	<select id="maxDiscId" resultType="integer">
+		SELECT MAX(discBoard_id) FROM discussion_Board
+	</select>
+	
+	<!-- count for -->
+	<select id="count" resultType="integer" >
+		SELECT COUNT(discBoard_Id) FROM discussion_Board 
+	</select>
+	
+	<!-- get id for insert -->
+	<select id="isInsertMatch" resultType="integer" parameterType="long">
+		SELECT COUNT(*) from match where match_id = #{value}
+	</select>
+	
+	<!-- FROM THIS START EXECUTE STATEMENT -->
+
+	
+	<!-- insert  Query Set-->
+	<!-- Insert board Query -->
+	<insert id="insertBoard" parameterType="com.javalec.vo.DiscussionBoardVO">
+		INSERT INTO discussion_board  
+		(email, write_date, troller, nickname, content, discboard_id, expired,match_id) 
+		VALUES (#{email},#{writeDate},#{troller},#{nickname},#{content},#{discBoardId},#{expired},#{matchVO.matchId})
+	</insert>
+	
+	<!-- insert match Query -->
+	<insert id="insertMatch" parameterType="com.javalec.vo.MatchVO">
+		INSERT INTO match 
+		(match_id,game_duration) 
+		VALUES (#{matchId},#{gameDuration})
+	</insert>
+	
+	<!-- insert teamstatsVO -->
+	<!-- input list -->
+	<insert id="insertTeamstats" parameterType="com.javalec.vo.TeamStatsVO" >
+		INSERT INTO team_stat 
+		(match_id,stats_id,win,inhibitor_kills,dragon_kills,tower_kills,baron_kills)
+		VALUES(
+			#{matchId},#{statsId},#{win},
+			#{inhibitorKills},#{dragonKills},#{towerKills},
+			#{baronKills}
+			)
+	</insert>
+	
+	
+	<!-- Insert participants Query -->
+	<!-- input : list -->
+	<insert id="insertParticipant" parameterType="com.javalec.vo.ParticipantVO">
+		INSERT INTO participant 
+		(match_id,participant_id,summoner_name,lane,
+		item0,item1,item2,item3,item4,item5,item6,
+		kills,deaths,assists,champ_id,
+		total_heal,total_damage_dealt_to_champ,total_damage_taken)
+		VALUES  
+		(#{matchId},#{participantId},#{summonerName},#{lane},
+		#{item0},#{item1},#{item2},#{item3},#{item4},#{item5},#{item6},
+		#{kills},#{deaths},#{assists},#{champId},
+		#{totalHeal},#{totalDamageDealtToChampions},#{totalDamageTaken})
+	</insert>
+	
+		<!-- FOR GETTING DISC_BOARD -->
+	<select id="getDiscBoardById"  resultMap="discBoard">
+		SELECT * FROM 
+		discussion_board 
+		WHERE discboard_id = #{id}
+	</select>
+	<select  id="getMatchById" resultMap="match">
+		select * FROM match WHERE match_id = #{matchId}
+	</select>
+	<select id="getTeamStatsListByMatch" resultMap="teamStats">
+		SELECT * FROM team_stat WHERE match_id = #{matchId}
+	</select>
+	<select id="getPartiListByMatch" resultMap="participant">
+		SELECT * FROM participant WHERE match_id = #{matchId}
+	</select>
+	
+		<!-- DISC BOARD MAPPING -->
+	<resultMap type="com.javalec.vo.DiscussionBoardVO" id="discBoard">
+		<id column="discBoard_Id"   property="discBoardId" />
+		<result column="write_Date" property="writeDate" />
+		<result column="content" 	  property="content" />
+		<result column="email" 	  property="email"/>
+		<result column="readcount"  property="readcount"/>
+		<result column="up" 		  property="up"/>
+		<result column="down" 	  property="down"/>
+		<result column="expired"    property="expired"/>
+		<association  property="matchVO" column="match_id" select="getMatchById" />
+	</resultMap>
+	
+		<!-- match Mapping -->
+	<resultMap type="com.javalec.vo.MatchVO" id="match" >
+		<id property="matchId" column = "match_id"/>
+		<result property="gameDuration" column="game_duration"/>
+		<collection  property="teamStatsVOList" column="match_id" select="getTeamStatsListByMatch"/>
+		<collection property="participantVOList" column="match_id" select="getPartiListByMatch" />
+	</resultMap>
+	
+	<!-- TeamStats Mapping -->
+	<resultMap type="com.javalec.vo.TeamStatsVO" id="teamStats">
+		<id property="matchId" 			  column="match_id"/>
+		<result property="statsId" 		  column="stats_id"/>
+		<result property="win"     		  column="win"/>
+		<result property="inhibitorKills" column="inhibitor_kills"/>
+		<result property="dragonKills"	  column="dragon_kills"/>
+		<result property="towerKills"	  column="tower_kills"/>
+		<result property="baronKills"	  column="baron_kills"/>
+	</resultMap>
+	
+		
+	<!-- Participants Mapping -->
+	<resultMap type="com.javalec.vo.ParticipantVO" id="participant">
+		<id property="matchId" 					 column="match_id"/>
+		<result property="participantId" 		 column="participant_id"/>
+		<result property="summonerName" 		 column="summoner_name"/>
+		<result property="lane" 				 column="lane"/>
+		<result property="item0" 				 column="item0"/>
+		<result property="item1" 				 column="item1"/>
+		<result property="item2" 				 column="item2"/>
+		<result property="item3"				 column="item3"/>
+		<result property="item4" 				 column="item4"/>
+		<result property="item5" 				 column="item5"/>
+		<result property="item6" 				 column="item6"/>
+		<result property="kills" 				 column="kills"/>
+		<result property="deaths" 				 column="deaths"/>
+		<result property="assists"				 column="assists"/>
+		<result property="totalHeal"			 column="total_heal"/>
+		<result property="totalDealtToChampions" column="total_dealt_to_champions"/>
+		<result property="totalDamageTaken" 	 column="total_damage_taken"/>
+		<result property="champId" 			 column="champ_id"/>
+	</resultMap>
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DiscReplyVoteNS">
+
+	<select id="isVoted" parameterType="hashMap" resultType="integer">
+		SELECT up FROM 
+		disc_reply_vote 
+		WHERE disc_reply_id = #{replyId}
+		AND email = #{email}
+	</select>
+
+	<insert id="insertReplyVote" parameterType="com.javalec.vo.DiscReplyVoteVO">
+		INSERT INTO disc_reply_vote (email, disc_reply_id, up)
+		VALUES(#{email}, #{replyId}, #{up})
+	</insert>
+
+	<update id="updateReplyVote" parameterType="com.javalec.vo.DiscReplyVoteVO">
+		UPDATE disc_reply_vote
+		SET
+		up = #{up}
+		WHERE
+		email = #{email}
+		AND
+		disc_reply_id = #{replyId}
+	</update>
+
+	<delete id="deleteReplyVote" parameterType="com.javalec.vo.DiscReplyVoteVO">
+		DELETE FROM disc_reply_vote 
+		WHERE 
+		email         = #{email} 
+		AND 
+		disc_reply_Id = #{replyId}
+	</delete>
+	<delete id="deleteVoteByReply">
+		DELETE FROM disc_reply_vote 
+		WHERE 
+		disc_reply_Id = #{replyId}
+	</delete>
+</mapper>

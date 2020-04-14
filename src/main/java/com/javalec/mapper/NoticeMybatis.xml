@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.javalec.dao.NoticeDao" >
+
+	
+	<insert id="insertNotice">
+		INSERT INTO NOTICE ( type, target_id )
+			VALUES ( #{type}, #{targetId} ) 
+	</insert>
+	
+	
+	<select id="selectReporter" resultType="string">
+		SELECT nickname from discussion_board where discboard_id = #{value}
+	</select>
+	
+	<select id="selectTroller" resultType="string">
+		SELECT troller from discussion_board where discboard_id = #{value}
+	</select>
+	
+	
+	<!-- ___________________________________________________________________________ -->
+	<select id="selectNoticeForDisc" resultMap="noticeFromDisc">
+		SELECT db.troller, db.discboard_id, db.NICKNAME, n.type
+		FROM discussion_board db, notice n 
+		WHERE db.discboard_id = n.target_id
+		AND db.troller = #{nickname}
+		AND n.type='disc'
+	</select>
+	<resultMap id="noticeFromDisc" type="com.javalec.vo.NoticeVO">
+		<id column="discboard_id" property="targetId"/>
+		<result column="nickname" property="sender"  />
+		<result column="troller" property="receiver"  />
+		<result column="type" property="type" />
+	</resultMap>
+	<!-- ___________________________________________________________________________ -->
+	<select id="selectNoticeForMatching" resultMap='noticeFromMatching'>
+		SELECT chat.*, member.nickname partner 
+    FROM member, 
+		( SELECT room.chat_id, room.email_2, n.type, member.nickname nickname
+		FROM notice n,duo_chat_room room,member
+		WHERE room.chat_id = n.target_id
+		AND n.type = 'matching'
+        AND email_1 = member.email
+        AND email_2 = #{email}) chat
+		WHERE member.email = chat.email_2
+	</select>
+	<resultMap id="noticeFromMatching" type="com.javalec.vo.NoticeVO">
+		<id column="chat_id" property="targetId"/>
+		<result column="nickname" property="sender"  />
+		<result column="partner" property="receiver"  />
+		<result column="type" property="type" />
+	</resultMap>
+	<!-- ___________________________________________________________________________ -->
+	<select id="selectNoticeForReply" resultMap="noticeFromReply">
+		SELECT mr.parent_id, mb.nickname, n.type, m.nickname sender
+		FROM matching_board mb, matching_reply mr, notice n, member m
+		WHERE n.target_id=mr.reply_id
+		AND mb.matching_board_id=mr.parent_id
+		AND mb.nickname=#{nickname}
+		AND n.type='reply'
+		AND m.email=mr.email
+	</select>
+	<resultMap id="noticeFromReply" type="com.javalec.vo.NoticeVO">
+		<id column="parent_id" property="targetId"/>
+		<result column="nickname" property="receiver"/>
+		<result column="sender" property="sender"/>
+		<result column="type" property="type" />
+	</resultMap>
+	<!-- ___________________________________________________________________________ -->
+	
+	<delete id="confirmNotice">
+		DELETE FROM notice WHERE target_id =  #{targetId}
+		AND type=#{type}
+	</delete>
+	<delete id="confirmNoticeForReply">
+		DELETE FROM notice 
+		WHERE target_id IN
+            (
+             SELECT n.target_id
+             FROM
+                (SELECT reply_id
+                 FROM matching_reply
+                 WHERE parent_id=#{id}) a, notice n
+             WHERE n.target_id=a.reply_id
+             AND n.type='reply'
+             )
+	</delete>
+	<delete id="confirmNoticeForMatching">
+		DELETE FROM notice 
+		WHERE target_id IN
+            (
+             SELECT n.target_id
+             FROM
+                (SELECT chat_id
+                 FROM duo_chat_room
+                 WHERE email_2=#{email}) a, notice n
+             WHERE n.target_id = a.chat_id
+             AND n.type = 'matching'
+             )
+	</delete>
+</mapper>

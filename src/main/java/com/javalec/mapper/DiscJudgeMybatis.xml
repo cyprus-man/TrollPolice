@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.javalec.dao.DiscJudgeDao">
+
+	<select id="getDecision" parameterType="hashMap" resultType="int">
+			SELECT decision FROM judge 
+			WHERE email = #{email} 
+			AND   discboard_id = #{discBoardId}
+	</select>
+
+	<insert id="insertJudge" parameterType="com.javalec.vo.DiscJudgeVO">
+		INSERT INTO judge (discboard_id,email,decision)
+		VALUES(#{discBoardId},#{email},#{decision})
+	</insert>
+
+	<update id="updateJudge" parameterType="com.javalec.vo.DiscJudgeVO">
+		UPDATE judge
+		SET
+		decision = #{decision}
+		WHERE
+		email = #{email} AND
+		discBoard_Id = #{discBoardId}
+	</update>
+
+	<delete id="deleteJudge" parameterType="hashMap">
+		DELETE FROM judge WHERE
+		discboard_id = #{discBoardId} AND
+		email = #{email}
+	</delete>
+</mapper>

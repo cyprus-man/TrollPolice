@@ -1,0 +1,195 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+#wrap {
+	width: 800px;
+	margin: 150px auto;
+}
+
+#viewTier {
+	width: 800px;
+	height: 210px;
+	text-align: center;
+	margin-top: 30px;
+}
+
+#emailDiv {
+	margin: 0 auto;
+}
+
+input:focus{
+	outline-style: dotted;
+    outline-color: #2fc97a;
+}
+
+#email{
+	outline: none;
+}
+
+#email, #nowPw, #newPw, #pwCheck {
+	height: 30px;
+	width: 700px;
+	padding: calc(.375em - 1px) calc(.625em - 1px);
+	background: #F5F5F4;
+	margin-top: 10px;
+	color: #5f5f5f;
+	border: 0;
+	border-radius: 0;
+	margin-left: 40px;
+	font-size: 13px;
+}
+
+#nickName {
+	height: 30px;
+	width: 400px;
+	padding: calc(.375em - 1px) calc(.625em - 1px);
+	background: #F5F5F4;
+	margin-top: 10px;
+	color: #5f5f5f;
+	border: 0;
+	border-radius: 0;
+	margin-left: 40px;
+	font-size: 13px;
+}
+
+#saveImpo {
+	background-color: #2fc97a;
+	width: 280px;
+	height: 50px;
+	font-weight: 800;
+	color: #fff;
+	font-size: 1rem;
+	margin-top: 50px;
+	margin-left: 270px;
+	margin-bottom: 50px;
+}
+
+#searchNickname {
+	background-color: #2fc97a;
+	width: 100%;
+	height: 50px;
+	max-width: 140px;
+	font-weight: 800;
+	color: #fff;
+	font-size: 1rem;
+	margin-left: 15px;
+}
+
+#renew {
+	background-color: #2fc97a;
+	width: 100%;
+	height: 50px;
+	max-width: 140px;
+	font-weight: 800;
+	color: #fff;
+	font-size: 1rem;
+	margin-left: 15px;
+}
+
+p {
+	color: #595959;
+	font-size: 1rem;
+	font-weight: 800;
+	margin-left: 40px;
+	margin-top: 15px;
+}
+
+h1 {
+	font-size: 18px;
+	font-weight: 800;
+	color: #000a12;
+	margin-bottom: 20px;
+}
+
+h2 {
+	font-size: 13px;
+	font-weight: bold;
+}
+
+h3 {
+	font-size: 12px;
+	font-weight: 800;
+	color: #595959;
+}
+
+h4 {
+	color: #595959;
+	font-size: 1rem;
+	font-weight: 800;
+	margin-left: 40px;
+	float: left;
+}
+
+#touchEmail {
+	width: 220px;
+	color: red;
+	font-size: 13px;
+	float: left;
+	margin-left: 15px;
+	margin-top: 2px;
+}
+
+#outText {
+	width: 580px;
+	height: 200px;
+	margin-top: 15px;
+	margin-left: 160px;
+}
+
+#outPw {
+	height: 30px;
+	width: 700px;
+	padding: calc(.375em - 1px) calc(.625em - 1px);
+	background: #F5F5F4;
+	margin-top: 10px;
+	color: #5f5f5f;
+	border: 0;
+	border-radius: 0;
+	margin-left: 40px;
+	font-size: 14px;
+}
+
+#byeBtn {
+	background-color: #363636;
+	width: 100%;
+	height: 50px;
+	max-width: 280px;
+	font-weight: 800;
+	color: #fff;
+	font-size: 1rem;
+	margin-left: 270px;
+	margin-top: 40px;
+	margin-bottom: 50px;
+}
+
+#inputLine {
+	border: 1px solid rgba(206, 206, 206, 0.959);
+	margin-bottom: 20px;
+}
+
+.notifyCheck, .nicknameWrong, .nicknameOverlap, .nicknamePass {
+	font-size: 13px;
+}
+
+.pwWrong, .pwNotSame, .pwPass {
+	font-size: 13px;
+}
+
+#nickDiv {
+	margin-left: 43px;
+}
+
+#passSpanDiv {
+	margin-left: 43px;
+}
+
+#nickDiv span, #passDiv span, #byeSpan span {
+	display: none;
+}
+
+.byePw {
+	margin-left: 43px;
+	font-size: 13px;
+}

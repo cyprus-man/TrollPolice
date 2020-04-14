@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="freeReplyNS">
+	<insert id="insertReply">
+		INSERT INTO freeBoard_reply(rno,bno,replytext,replyer)
+		VALUES(freeboard_reply_seq.NEXTVAL,#{bno},#{replytext},#{replyer})
+	</insert>
+	
+	<select id="listReply" resultType="com.javalec.vo.FreeBoardReplyVO">
+		SELECT * FROM(SELECT ROWNUM AS rn, A.* FROM(
+		 SELECT r.rno,bno,r.replytext,r.replyer,m.nickname AS userName,r.regdate,
+		(SELECT writer FROM freeBoard WHERE bno=r.bno)AS writer
+		FROM freeBoard_reply r,member m
+		WHERE r.replyer =m.nickname AND bno=#{bno}
+		ORDER BY rno desc ) A
+		)WHERE rn BETWEEN #{start} AND #{end}
+	</select>
+	<select id="detailReply" resultType="com.javalec.vo.FreeBoardReplyVO">
+		SELECT rno,bno,replytext,replyer,regdate FROM freeBoard_reply
+		WHERE rno=#{rno}
+	</select>
+	<select id="updateReply">
+		UPDATE freeBoard_reply
+		set replytext=#{replytext}
+		WHERE rno =#{rno}
+	</select>
+	<delete id="deleteReply">
+		DELETE FROM freeBoard_reply
+		WHERE rno=#{rno}
+	</delete>
+	<select id="countReply" resultType="int">
+		SELECT COUNT(*) FROM freeBoard_reply WHERE bno=#{bno} 
+	</select>
+	
+
+
+
+</mapper>

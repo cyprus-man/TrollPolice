@@ -1,0 +1,41 @@
+{
+	"folders": {},
+	"connections": {
+		"sqlite_jdbc-1708b50f082-7ddfa9e5f3531ae0": {
+			"provider": "generic",
+			"driver": "sqlite_jdbc",
+			"name": "SQLite - myTroll.db",
+			"save-password": true,
+			"read-only": false,
+			"configuration": {
+				"database": "C:\\sqlite\\db\\trollPolice\\myTroll.db",
+				"url": "jdbc:sqlite:C:\\sqlite\\db\\trollPolice\\myTroll.db",
+				"type": "dev",
+				"handlers": {}
+			}
+		},
+		"sqlite_jdbc-1708b521d19-1918f0ce37217679": {
+			"provider": "generic",
+			"driver": "sqlite_jdbc",
+			"name": "SQLite - myTroll.db 2",
+			"save-password": true,
+			"read-only": false,
+			"configuration": {
+				"database": "C:\\sqlite\\db\\trollPolice\\myTroll.db",
+				"url": "jdbc:sqlite:C:\\sqlite\\db\\trollPolice\\myTroll.db",
+				"type": "dev",
+				"handlers": {}
+			}
+		}
+	},
+	"connection-types": {
+		"dev": {
+			"name": "Development",
+			"color": "255,255,255",
+			"description": "Regular development database",
+			"auto-commit": true,
+			"confirm-execute": false,
+			"confirm-data-change": false
+		}
+	}
+}

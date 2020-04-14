@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="LiveChatNS">
+
+	<insert id="insertChatContent">
+		INSERT INTO duo_chat_content
+		(chat_id, sender, content,send_date)
+		VALUES(#{chatId},#{sender},#{content},#{sendDate})
+	</insert>
+
+	<insert id="insertChatRoom">
+		INSERT INTO duo_chat_room
+		(chat_id,create_date,email_1,email_2,most_champ_1,most_champ_2,chat_expired)
+		VALUES
+		(#{chatId},#{createDate},#{email1},#{email2},#{mostChamp1},#{mostChamp2},chat_expired)
+	</insert>
+	<select id="isExists" resultType="int" >
+		SELECT count(*) FROM duo_chat_room 
+		WHERE (
+			(email_1 = #{email1} AND email_2 = #{email2}) 
+			OR  (email_1 = #{email2} AND email_2 = #{email1})
+		)
+		AND is_end ='N'
+	</select>
+	<select id="list" resultMap="liveChat">
+		SELECT tier,nickname,room.* 
+		FROM member,
+		(
+			SELECT room.*,CASE WHEN email_1 =
+			#{email} THEN email_2
+			ELSE email_1
+			END as email
+			FROM duo_chat_room room
+			WHERE EMAIL_1 = #{email} OR EMAIL_2 = #{email}
+		) room
+		WHERE
+		room.email = member.email
+		AND 
+		(room.is_end = 'N' 	OR room.confirm_exit = 0)
+	</select>
+	
+	<select id="countMyChat" resultType="int">
+		SELECT COUNT(*) FROM duo_chat_room
+		WHERE (email_1 = #{email} OR email_2 = #{email})
+		AND is_end = 'N'
+	</select>
+
+	<select id="getContentListById"
+		resultMap="liveChatContentList">
+		SELECT content.*, nickname ,
+        	CASE WHEN email_1 = sender THEN most_Champ_1
+             WHEN email_2 = sender THEN most_Champ_2
+             END as most
+		FROM duo_chat_content content ,member,duo_chat_room
+		WHERE content.chat_id = #{champId}
+		AND duo_chat_room.chat_id = content.chat_id 
+		AND member.email = content.sender
+		ORDER BY send_date
+	</select>
+
+	<select id="getLiveContentById" resultMap="liveChatContent">
+		SELECT *
+		FROM (SELECT content.*,nickname FROM duo_chat_content content ,member
+			WHERE chat_id = #{chatId} 
+			AND content.sender = member.email
+			ORDER BY send_date DESC)
+		WHERE ROWNUM=1
+	</select>
+	
+	<select id="getConfirmCount" resultType="int">
+		SELECT count(*) AS count FROM duo_chat_content
+		WHERE isCheck = 'N'
+		AND chat_id   = #{chatId}
+		AND sender   != #{email} 
+	</select>
+
+	<delete id="deleteChatContent">
+		DELETE FROM duo_chat_content WHERE chat_id = #{chatId}
+	</delete>
+
+	<update id="expireChatRoom">
+		UPDATE duo_chat_room
+		 SET is_end='Y',
+		 	 confirm_exit = #{confirmExit}
+		 WHERE chat_id    = #{chatId}
+	</update>
+	<update id="confirmContent" parameterType="hashMap">
+		UPDATE duo_chat_content 
+		SET isCheck   = 'Y'
+		WHERE chat_id = #{chatId} 
+		AND sender   != #{email}
+	</update>
+
+
+
+	<resultMap type="com.javalec.vo.LiveChatVO" id="liveChat">
+		<id property="chatId" column="chat_id" />
+		<result property="createDate" column="create_date" />
+		<result property="nickname" column="nickname" />
+		<result property="email1" column="email_1" />
+		<result property="email2" column="email_2" />
+		<result property="mostChamp1" column="most_champ_1" />
+		<result property="mostChamp2" column="most_champ_2" />
+		<result property="chatExpired" column="chat_expired" />
+		<result property="lane1" column="lane1" />
+		<result property="lane2" column="lane2" />
+		<result property="isEnd" column="is_end" />
+		<result property="confirmExit" column="confirm_exit"/>
+		<association property="liveChatContent" column="chat_id"
+			select="getLiveContentById" />
+	</resultMap>
+
+	<resultMap type="com.javalec.vo.LiveChatContentVO"
+		id="liveChatContent">
+		<result property="sendDate" column="send_date" />
+		<result property="content" column="content" />
+		<result property="sender" column="nickname"/>
+	</resultMap>
+
+	<resultMap type="com.javalec.vo.LiveChatContentVO"
+		id="liveChatContentList">
+		<result property="chatId"    column="chat_id"/>
+		<result property="sendDate"  column="send_date" />
+		<result property="content"   column="content" />
+		<result property="sender"    column="nickname"/>
+		<result property="mostChamp" column="most"/>
+	</resultMap>
+</mapper>

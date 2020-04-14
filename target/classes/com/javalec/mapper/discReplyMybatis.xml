@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ReplyNS">
+
+	<!-- getReply 할때  judge 테이블에서 조인해서 갖고와야됨  -->
+	<resultMap type="com.javalec.vo.DiscussionReplyVO" id="discReply">
+		<id column="discboard_id" property="discBoardId"/>
+		<result column="email" property="email"/>
+		<result column="nickname" property="nickname"/>
+		<result column="write_date" property="writeDate"/>
+		<result column="content" property="content"/>
+		<result column="disc_reply_id" property="replyId"/>
+		<result column="disc_parent_id" property="parentId"/>
+		<result column="up" property="up"/>
+		<result column="down" property="down"/>
+		<result column="tier" property="tier"/>
+		<association column="disc_reply_id" property="childCount" select="getChildCount">
+			<result column="count(*)" property="childCount"/>
+		</association>
+	</resultMap>
+	<select id="getReplyByRId" resultMap="discReply"> SELECT * FROM discussion_reply WHERE disc_reply_id = #{value} </select>
+	<select id="getReplyCount" parameterType="int" resultType="integer">
+		SELECT COUNT(*) FROM discussion_reply 
+		WHERE discboard_id = #{discId} 
+		AND disc_parent_id = 0
+	</select>
+	<select id="getChildCount" resultType = "integer" >
+		SELECT COUNT(*) FROM discussion_reply 
+		WHERE disc_parent_id = #{replyId}
+	</select>
+	
+	<select id="getReplyByEmail" parameterType="string" resultMap="discReply">
+		<![CDATA[
+			SELECT * FROM discussion_reply WHERE email = #{email}
+		]]>
+	</select>
+	
+	<select id="getReplyByDisc" parameterType="hashMap" resultMap="discReply">
+		<![CDATA[
+			SELECT b.*,member.tier FROM
+				(SELECT rownum RN, a.* FROM 
+					(SELECT ROWNUM rnum, discussion_reply.* 
+					FROM discussion_reply 
+					WHERE discboard_id = #{discBoardId}
+					AND disc_parent_id = #{parentId}
+					ORDER BY (up-down) 
+					) a
+					 WHERE ROWNUM <= (#{page}*10)
+					
+				) b,member 
+				WHERE b.rn >= ((#{page}-1)*10+1) 
+				AND member.email = b.email
+		]]>
+		<!-- 
+			SELECT * FROM 
+			(SELECT ROWNUM RN, a.* FROM 
+				(SELECT * FROM discussion_Board WHERE ROWNUM <= (#{page}*15) ORDER BY discBoard_Id DESC) a ) 
+			 WHERE  RN>=((#{page}-1)*15+1)
+			  -->
+	</select>
+	
+	<select id ="deleteReply" statementType="CALLABLE" >
+		CALL delete_disc_reply_proc(#{value})
+	</select>
+	
+	<select id="getMax" parameterType="integer" resultType="integer">
+		SELECT MAX(disc_reply_id)+1
+		FROM discussion_reply
+	</select>
+	<insert id="insertReply" parameterType="com.javalec.vo.DiscussionReplyVO">
+		INSERT INTO discussion_reply 
+		(email,nickname,write_date,content,discboard_id,disc_reply_id,disc_parent_id)
+		VALUES 
+		(#{email},#{nickname},#{writeDate},#{content},#{discBoardId},#{replyId},#{parentId})
+	</insert>
+	<update id="updateUp" parameterType="hashMap">
+		UPDATE discussion_reply 
+		SET up = #{up}
+		WHERE disc_reply_id  = #{replyId}
+	</update>
+	<update id="updateDown" parameterType="hashMap">
+		UPDATE discussion_reply 
+		SET down = #{down}
+		WHERE disc_reply_id  = #{replyId}
+	</update>
+	<update id="updateUpDown" parameterType="hashMap">
+		UPDATE discussion_reply
+		SET down = #{down},
+			up = #{up}
+		WHERE disc_reply_id = #{replyId}
+	</update>
+	<update id="updateReplyContent" parameterType="com.javalec.vo.DiscussionReplyVO">
+		UPDATE discussion_reply 
+		SET   content  = #{content}
+		WHERE disc_reply_id  = #{replyId}
+	</update>
+	<delete id="deleteChildReply" parameterType="com.javalec.vo.DiscussionReplyVO">
+		DELETE FROM discussion_reply WHERE
+		discboard_id  = #{discBoardId} AND 
+		disc_parent_id = #{replyId}
+	</delete>
+</mapper>

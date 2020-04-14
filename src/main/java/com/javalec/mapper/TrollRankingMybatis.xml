@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.javalec.dao.TrollerDao" >
+
+	<resultMap id="troller" type="com.javalec.vo.TrollerVO">
+		<id column="nickname" property="nickname"/>
+		<result column="troll_count" property="trollCount" />
+		<result column="tier" property="tier"/>
+		<association column="nickname" property="trollChamp" select="getMostTrollChamp" />
+	</resultMap>
+	
+	
+	<insert id="insertTroller" parameterType="com.javalec.vo.TrollerVO">
+		INSERT INTO troller
+		(tier,nickname,name_id,encrypedID)
+		VALUES (#{tier},#{nickname},#{nameId},#{encrypedID}) 
+	</insert>
+	
+	
+	<select id="getMostTrollChamp" resultType="int">
+		SELECT champ_id FROM (
+		    SELECT  COUNT(distinct(p.match_id)), p.champ_id as champ_id 
+		    FROM participant p, discussion_board db
+		    WHERE db.troller = #{nickname}  
+		    AND p.summoner_name = db.troller
+		    GROUP BY champ_id,summoner_name
+		    ORDER BY COUNT(p.match_id) DESC)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<select id="getTrollRank" resultMap="troller">
+		<![CDATA[
+			SELECT * FROM 
+			
+			(SELECT db.troller as nickname, t.tier, COUNT(db.discboard_id) as troll_count 
+			FROM discussion_board db ,troller t
+			WHERE write_date+30 > SYSDATE 
+			AND db.troller = t.nickname
+			AND t.tier = #{tier}
+			GROUP BY db.troller, t.tier ORDER BY COUNT(*) desc)
+			WHERE ROWNUM <= 10
+		]]> 
+	</select>
+	
+	<select id="getTrollValue" parameterType="string" resultMap="trollValue">
+		<![CDATA[
+			SELECT 
+			CASE  WHEN (up - down) > 0 THEN 1
+			      WHEN (up - down) = 0 THEN 0
+			      WHEN (up - down) < 0 THEN -1 END CASE 
+			,COUNT(*) as TROLL
+			FROM discussion_board
+			WHERE troller = #{nickname}
+			GROUP BY (up-down)
+		]]>
+	</select>
+	
+	<resultMap type="map" id="trollValue">
+		<result column="TROLL" javaType="int" property="troll"/>
+		<result column="CASE" javaType="int" property="case"/>
+	</resultMap>
+	
+	<select id="isTroller" resultType="integer" parameterType="string">
+		SELECT COUNT(*) FROM TROLLER WHERE nickname = #{nickname}
+	</select>
+</mapper>
