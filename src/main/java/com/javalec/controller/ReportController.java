@@ -3,7 +3,7 @@ package com.javalec.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.catalina.ha.backend.Sender;
+//import org.apache.catalina.ha.backend.Sender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
